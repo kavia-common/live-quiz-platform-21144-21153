@@ -1,8 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders navigation and Lobby by default', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  // Sidebar buttons
+  expect(screen.getByRole('button', { name: /Lobby/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Play/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Leaderboard/i })).toBeInTheDocument();
+  // Lobby title
+  expect(screen.getByText(/Lobby/i)).toBeInTheDocument();
+  // Name input
+  expect(screen.getByPlaceholderText(/Enter your display name/i)).toBeInTheDocument();
 });

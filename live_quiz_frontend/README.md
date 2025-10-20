@@ -1,82 +1,64 @@
-# Lightweight React Template for KAVIA
+# Live Quiz Platform - Frontend (Mock)
 
-This project provides a minimal React template with a clean, modern UI and minimal dependencies.
+Ocean Professional themed React app that simulates a live quiz experience: lobby, play with timer and feedback, and real-time leaderboard via a mock API and WebSocket.
 
-## Features
+## Tech and Philosophy
+- React 18 + vanilla CSS. No external router; lightweight hash routing.
+- Ocean Professional theme using CSS variables and subtle gradients/shadows.
+- Self-contained mocks to simulate REST and WebSocket behavior.
 
-- **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React
-- **Modern UI**: Clean, responsive design with KAVIA brand styling
-- **Fast**: Minimal dependencies for quick loading times
-- **Simple**: Easy to understand and modify
+## Run
+- npm start
+- npm test
+- npm run build
 
-## Getting Started
+## App Structure
+- src/theme.js, src/styles/theme.css: Theme variables (primary #2563EB, secondary/success #F59E0B, error #EF4444, background #f9fafb, surface #ffffff, text #111827, gradient).
+- src/routes.js: Hash router hook and route constants.
+- src/components/Layout: Header, Sidebar, Container.
+- src/components/Quiz: Lobby (join/select), Player (questions, feedback), Modal, ProgressBar.
+- src/components/Leaderboard: Leaderboard, UserCard.
+- src/hooks: useQuizEngine (question/timing/answers), useLeaderboard (live leaderboard).
+- src/mocks: mockApi (quizzes, join, submit, leaderboard), mockSocket (on/off/emit; simulated server pushes).
+- src/utils: scoring (base + time bonus), storage (session persistence).
 
-In the project directory, you can run:
+## Mock API
+- listQuizzes(): returns available quizzes.
+- getQuiz(quizId): returns quiz with questions and durations.
+- joinQuiz({ quizId, name, userId }): registers participant.
+- submitAnswer({ quizId, userId, questionId, isCorrect, points }): accrues score.
+- getLeaderboard(quizId): returns sorted leaderboard.
+- resetQuiz(quizId): clears participant state.
 
-### `npm start`
+State is held in-memory inside the frontend process.
 
-Runs the app in development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Mock WebSocket
+- socket.on(event, cb), socket.off(event, cb), socket.emit(event, payload)
+- startSimulation(tickMs): emits "leaderboard:update" every tick; quiz engine emits "question:next" and "quiz:ended" when appropriate.
+- In real operation, the server would push:
+  - "question:next": advance all clients to the next question.
+  - "leaderboard:update": refresh leaderboard after answers.
+  - "quiz:ended": notify completion.
 
-### `npm test`
+## Scoring
+Base 100 points for correct answers plus up to 50 bonus points proportional to remaining time.
 
-Launches the test runner in interactive watch mode.
+## Accessibility
+- Modal uses role="dialog" and aria-modal.
+- Buttons have aria-labels; keyboard navigable by default.
+- Progress is visible and labeled.
 
-### `npm run build`
+## Session Persistence
+Participant name, selected quiz id, and generated userId are saved in localStorage and restored on load.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Extend to Real Backend
+Replace mockApi.js and mockSocket.js:
+- REST: list quizzes, join, submit, leaderboard endpoints.
+- WebSocket: subscribe to quiz room; server emits question:next, leaderboard:update, quiz:ended.
+- Swap startSimulation() with real connection bootstrap; wire socket.on/off to actual server.
 
-## Customization
+## Tests
+App.test.js ensures nav items are present and Lobby is the initial view.
 
-### Colors
-
-The main brand colors are defined as CSS variables in `src/App.css`:
-
-```css
-:root {
-  --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
-}
-```
-
-### Components
-
-This template uses pure HTML/CSS components instead of a UI framework. You can find component styles in `src/App.css`. 
-
-Common components include:
-- Buttons (`.btn`, `.btn-large`)
-- Container (`.container`)
-- Navigation (`.navbar`)
-- Typography (`.title`, `.subtitle`, `.description`)
-
-## Learn More
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Notes
+No environment variables required for the mock. To integrate a real backend, introduce env vars (e.g., REACT_APP_API_URL, REACT_APP_WS_URL) and use them in your API/socket modules.

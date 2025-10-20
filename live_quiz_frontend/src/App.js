@@ -1,47 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
+import './styles/theme.css';
+import Header from './components/Layout/Header';
+import Sidebar from './components/Layout/Sidebar';
+import QuizLobby from './components/Quiz/QuizLobby';
+import QuizPlayer from './components/Quiz/QuizPlayer';
+import Leaderboard from './components/Leaderboard/Leaderboard';
+import { useHashRouter, ROUTES } from './routes';
 
 // PUBLIC_INTERFACE
 function App() {
-  const [theme, setTheme] = useState('light');
+  /** App entry with header, sidebar, and hash-based routing */
+  const { route, navigate } = useHashRouter(ROUTES.lobby);
 
-  // Effect to apply theme to document element
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  const renderRoute = () => {
+    switch (route.path) {
+      case ROUTES.play:
+        return <QuizPlayer />;
+      case ROUTES.leaderboard:
+        return <Leaderboard />;
+      case ROUTES.lobby:
+      default:
+        return <QuizLobby navigate={(r)=>navigate(r)} />;
+    }
   };
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-shell">
+      <Header />
+      <Sidebar current={route.path} onNavigate={(p)=>navigate(p)} />
+      <main className="main" id="main">
+        {renderRoute()}
+      </main>
     </div>
   );
 }
