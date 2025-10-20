@@ -1,0 +1,4 @@
+{
+    "command": "npm run test",
+    "working_directory": "/home/kavia/workspace/code-generation/live-quiz-platform-21144-21153/live_quiz_frontend"
+}
